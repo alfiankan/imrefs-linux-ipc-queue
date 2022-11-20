@@ -1,0 +1,2 @@
+cleanque:
+	ipcrm --all=msg
