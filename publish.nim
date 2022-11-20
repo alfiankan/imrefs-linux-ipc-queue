@@ -1,7 +1,9 @@
 {.compile: "logic.c".}
-proc interop_msgsnd(a: cint, b: cint): cint {.importc.}
+proc interop_msgsnd*(payload: cstring, payloadLength: int,
+    msqid: cint): cint {.importc.}
 
 proc publishQueue() =
-  echo interop_msgsnd(1, 2022)
+  let greeting: cstring = "Alfiankan nur fathoni"
+  echo interop_msgsnd(greeting, len(greeting), 1)
 
 publishQueue()

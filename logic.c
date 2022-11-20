@@ -9,7 +9,8 @@
 struct Message
 {
     long mtype;
-    int year;
+    int payloadLength;
+    char payload[1000];
 };
 
 int interop_msgget(int key)
@@ -20,11 +21,16 @@ int interop_msgget(int key)
     return msgget(key, 0600 | IPC_CREAT);
 }
 
-int interop_msgsnd(int msqid, int year)
+int interop_msgsnd(const char payload[], int payloadLength, int msqid)
 {
     struct Message msgp;
-    msgp.year = year;
     msgp.mtype = 1;
+    msgp.payloadLength = payloadLength;
+
+    for (size_t i = 0; i < payloadLength; i++)
+    {
+        msgp.payload[i] = payload[i];
+    }
     return msgsnd(msqid, &msgp, sizeof(msgp) - sizeof(long), 0);
 }
 
@@ -32,5 +38,10 @@ void interop_msgrcv(int msqid)
 {
     struct Message msgp;
     msgrcv(msqid, &msgp, sizeof(msgp) - sizeof(long), 1, 0);
-    printf("Hurray getting %d from queue", msgp.year);
+
+    for (size_t i = 0; i < msgp.payloadLength; i++)
+    {
+        printf("%c", msgp.payload[i]);
+    }
+    printf("\n");
 }
