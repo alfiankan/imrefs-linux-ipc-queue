@@ -34,10 +34,14 @@ int interop_msgsnd(const char payload[], int payloadLength, int msqid)
     return msgsnd(msqid, &msgp, sizeof(msgp) - sizeof(long), 0);
 }
 
-const char interop_msgrcv(int msqid)
+char *interop_msgrcv(int msqid)
 {
     struct Message msgp;
     msgrcv(msqid, &msgp, sizeof(msgp) - sizeof(long), 1, 0);
-
-    return msgp.payload;
+    char *payload = malloc(msgp.payloadLength);
+    for (size_t i = 0; i < msgp.payloadLength; i++)
+    {
+        payload[i] = msgp.payload[i];
+    }
+    return payload;
 }
