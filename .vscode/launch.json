@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/workspaces/imrefs-linux-ipx-queue",
-      "program": "/workspaces/imrefs-linux-ipx-queue/build/Debug/outDebug",
+      "cwd": "/workspaces/imrefs-linux-ipc-queue",
+      "program": "/workspaces/imrefs-linux-ipc-queue/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
