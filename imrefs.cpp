@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
     }
     else if (argv[1] == std::string("send"))
     {
+        getStat("myfs");
         printf("Data successfully written at /tmp/file1234.tmp \n");
     }
     else if (argv[1] == std::string("stop"))
