@@ -18,7 +18,7 @@
 int save(const char *temFilePath, std::string content)
 {
     std::ofstream ofs(temFilePath, std::ios::trunc);
-    ofs << content.c_str();
+    ofs << content.c_str() << std::endl;
     ofs.close();
 }
 
@@ -46,7 +46,6 @@ int startFsSubscriber(std::string fsName, std::string temFilePath, int msqid)
         {
             result.push_back(msgp.payload[i]);
         }
-
         save(temFilePath.c_str(), result);
     }
 
