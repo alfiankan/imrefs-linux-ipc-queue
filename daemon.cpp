@@ -9,9 +9,20 @@
 #include <sys/stat.h>
 #include <syslog.h>
 #include <unistd.h>
+#include <fstream>
 #include <vector>
+#include <sys/msg.h>
+#include "fsstat.h"
+#include "message.h"
 
-int startFsSubscriber(void)
+int save(const char *temFilePath, std::string content)
+{
+    std::ofstream ofs(temFilePath, std::ios::trunc);
+    ofs << content.c_str();
+    ofs.close();
+}
+
+int startFsSubscriber(std::string fsName, std::string temFilePath, int msqid)
 {
     pid_t pid, sid;
 
@@ -24,9 +35,20 @@ int startFsSubscriber(void)
     {
         return -1;
     }
-    printf("Started with pid %d", pid);
 
-    sleep(10);
+    while (true)
+    {
+        struct Message msgp;
+        msgrcv(msqid, &msgp, sizeof(msgp) - sizeof(long), 1, 0);
+
+        std::string result;
+        for (size_t i = 0; i < msgp.payloadLength; i++)
+        {
+            result.push_back(msgp.payload[i]);
+        }
+
+        save(temFilePath.c_str(), result);
+    }
 
     return pid;
 }

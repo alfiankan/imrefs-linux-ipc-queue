@@ -8,29 +8,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
-
-struct FsStat
-{
-    std::string fsName;
-    int pid;
-    std::string tempFilePath;
-    int msqid;
-};
-
-bool saveStat(std::string fsName, int pid, std::string tempFilePath, int msqid)
-{
-    std::ofstream ofs("/tmp/imrefs_stat.tmp", std::ofstream::app);
-    ofs << fsName << "@" << pid << "@" << tempFilePath << "@" << msqid << "@" << std::endl;
-    ofs.close();
-}
-
-bool isStatExist(std::string fsName)
-{
-}
-
-bool deleteStat(std::string fsName)
-{
-}
+#include "fsstat.h"
 
 FsStat tokenizer(const char *s, char *delim)
 {
@@ -55,6 +33,80 @@ FsStat tokenizer(const char *s, char *delim)
     return fsStat;
 }
 
+bool saveStat(std::string fsName, int pid, std::string tempFilePath, int msqid)
+{
+    std::ofstream ofs("/tmp/imrefs_stat.tmp", std::ofstream::app);
+    ofs << fsName << "@" << pid << "@" << tempFilePath << "@" << msqid << "@" << std::endl;
+    ofs.close();
+}
+
+bool isStatExist(std::string fsName)
+{
+    std::ifstream statFile;
+    statFile.open("/tmp/imrefs_stat.tmp");
+    std::string line;
+    if (statFile.is_open())
+    {
+        while (statFile)
+        {
+            const char *s;
+            std::getline(statFile, line);
+            s = line.c_str();
+            struct FsStat fsStat = tokenizer(s, "@");
+            if (fsStat.fsName.compare(fsName) == 0)
+            {
+                return true;
+            }
+        }
+    }
+    else
+    {
+        std::cout << "Couldn't open file\n";
+    }
+    return false;
+}
+
+bool deleteStat(std::string fsName)
+{
+    std::vector<FsStat> newLines;
+    std::ifstream statFile;
+    statFile.open("/tmp/imrefs_stat.tmp");
+    std::string line;
+    if (statFile.is_open())
+    {
+        while (statFile)
+        {
+            const char *s;
+            std::getline(statFile, line);
+            s = line.c_str();
+            struct FsStat fsStat = tokenizer(s, "@");
+            if (fsStat.fsName.compare(fsName) != 0)
+            {
+                newLines.push_back(fsStat);
+            }
+        }
+    }
+    else
+    {
+        std::cout << "Couldn't open file\n";
+    }
+
+    // trunct
+    std::ofstream ofs("/tmp/imrefs_stat.tmp", std::ios::trunc);
+    ofs << "";
+    ofs.close();
+    if (newLines.size() > 0)
+    {
+        for (size_t i = 0; i < newLines.size(); i++)
+        {
+            if (!newLines[i].fsName.empty())
+            {
+                saveStat(newLines[i].fsName, newLines[i].pid, newLines[i].tempFilePath, newLines[i].msqid);
+            }
+        }
+    }
+}
+
 FsStat getStat(const std::string fsName)
 {
     std::ifstream statFile;
@@ -70,7 +122,6 @@ FsStat getStat(const std::string fsName)
             struct FsStat fsStat = tokenizer(s, "@");
             if (fsStat.fsName.compare(fsName) == 0)
             {
-                printf("fs with name %s and msqid %d then file temp at %s run on pid %d \n\n", fsStat.fsName.c_str(), fsStat.msqid, fsStat.tempFilePath.c_str(), fsStat.pid);
                 return fsStat;
             }
         }
