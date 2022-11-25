@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
         fsStat.fsName = std::string(argv[2]);
 
         // create que
-        const int key = 100;
+        const int key = ftok(tempFileName.c_str(), 90);
         int msqid;
         msqid = msgget(key, 0600 | IPC_CREAT);
         if (msqid < 0)

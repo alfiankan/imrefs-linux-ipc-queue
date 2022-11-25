@@ -13,3 +13,6 @@ imrefs.o: imrefs.cpp
 
 clean:
 	rm *.o
+
+install:
+	cp ./dist/imrefs /usr/local/bin/imrefs
